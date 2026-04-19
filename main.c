@@ -17,9 +17,17 @@ void apply_op(char op);
 int evaluate(char *expr);
 
 int main() {
-    char *exp = "111+143";
-    
-    printf("%d\n", evaluate(exp));
+    char expr[256];
+
+    while(1)
+    {
+        printf("> ");
+        if (fgets(expr,sizeof(expr), stdin) == NULL) break;
+        expr[strcspn(expr, "\n")] = '\0';
+        if (strcmp(expr, "exit") == 0) break;
+        
+        printf("%d\n", evaluate(expr));
+    }
 
     return 0;
 }
@@ -64,12 +72,16 @@ void apply_op(char op) {
 }
 
 int evaluate(char *expr) {
+    nums_top = -1;  // reset number stack
+    ops_top = -1;   // reset operator stack
     int len = strlen(expr);
 
 
     for (int i = 0; i < len; ++i)
     {
         char c = expr[i];
+
+        if (c == ' ') continue;
         if (expr[i] >= '0' && expr[i] <= '9')
         {
             int num = 0;
@@ -88,6 +100,19 @@ int evaluate(char *expr) {
                 apply_op(pop_op());
             }
             push_op(c);
+        }
+        if (c == '(')
+        {
+            push_op(c);    
+        }
+        
+        if (c == ')')
+        {
+            while (ops_top >= 0 && ops[ops_top] != '(')
+            {
+                apply_op(pop_op());
+            }
+            pop_op(); //discard '('
         }
     }
 
