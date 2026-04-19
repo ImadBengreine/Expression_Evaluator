@@ -17,34 +17,6 @@ int apply_op(char op);
 int evaluate(char *expr);
 
 int main() {
-    char expr[100];
-    
-    printf("Calculator (type 'exit' to quit)\n");
-    
-    while (1) {
-        printf("> ");
-        fflush(stdout);
-        
-        if (fgets(expr, sizeof(expr), stdin) == NULL) {
-            printf("\n");
-            break;  // EOF (Ctrl+D / Ctrl+Z)
-        }
-        
-        // Remove trailing newline
-        expr[strcspn(expr, "\n")] = '\0';
-        
-        // Exit condition
-        if (strcmp(expr, "exit") == 0 || strcmp(expr, "quit") == 0) {
-            printf("Goodbye!\n");
-            break;
-        }
-        
-        // Skip empty lines
-        if (strlen(expr) == 0) continue;
-        
-        int result = evaluate(expr);
-        printf("= %d\n", result);
-    }
     
     return 0;
 }
@@ -78,57 +50,29 @@ int priority(char op) {
 int apply_op(char op) {
     int b = pop_num();
     int a = pop_num();
-    
+
     switch(op) {
-        case '+': return a + b;
-        case '-': return a - b;
-        case '*': return a * b;
-        case '/': 
+        case '+':
+            return a + b;
+            break  
+        case '-':
+            return a - b;
+            break
+        case '*':
+            return a * b;
+            break
+        case '/':
             if (b == 0) {
                 printf("Error: Division by zero\n");
                 return 0;
             }
             return a / b;
+            break
+
         default: return 0;
     }
 }
 
 int evaluate(char *expr) {
-    int len = strlen(expr);
     
-    for (int i = 0; i < len; i++) {
-        if (expr[i] == ' ') continue;
-        
-        if (expr[i] >= '0' && expr[i] <= '9') {
-            int num = 0;
-            while (i < len && expr[i] >= '0' && expr[i] <= '9') {
-                num = num * 10 + (expr[i] - '0');
-                i++;
-            }
-            i--;
-            push_num(num);
-        }
-        else if (expr[i] == '(') {
-            push_op(expr[i]);
-        }
-        else if (expr[i] == ')') {
-            while (ops_top != -1 && ops[ops_top] != '(') {
-                push_num(apply_op(pop_op()));
-            }
-            if (ops_top != -1) pop_op();
-        }
-        else if (expr[i] == '+' || expr[i] == '-' || 
-                 expr[i] == '*' || expr[i] == '/') {
-            while (ops_top != -1 && priority(ops[ops_top]) >= priority(expr[i])) {
-                push_num(apply_op(pop_op()));
-            }
-            push_op(expr[i]);
-        }
-    }
-    
-    while (ops_top != -1) {
-        push_num(apply_op(pop_op()));
-    }
-    
-    return pop_num();
 }
