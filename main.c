@@ -13,11 +13,14 @@ int pop_num();
 void push_op(char op);
 char pop_op();
 int priority(char op);
-int apply_op(char op);
+void apply_op(char op);
 int evaluate(char *expr);
 
 int main() {
+    char *exp = "111+143";
     
+    printf("%d\n", evaluate(exp));
+
     return 0;
 }
 
@@ -47,32 +50,52 @@ int priority(char op) {
     return 0;
 }
 
-int apply_op(char op) {
+void apply_op(char op) {
     int b = pop_num();
     int a = pop_num();
-
     switch(op) {
-        case '+':
-            return a + b;
-            break  
-        case '-':
-            return a - b;
-            break
-        case '*':
-            return a * b;
-            break
+        case '+': push_num(a + b); break;
+        case '-': push_num(a - b); break;
+        case '*': push_num(a * b); break;
         case '/':
-            if (b == 0) {
-                printf("Error: Division by zero\n");
-                return 0;
-            }
-            return a / b;
-            break
-
-        default: return 0;
+            if (b == 0) { printf("Error: Division by zero\n"); return; }
+            push_num(a / b); break;
     }
 }
 
 int evaluate(char *expr) {
-    
+    int len = strlen(expr);
+
+
+    for (int i = 0; i < len; ++i)
+    {
+        char c = expr[i];
+        if (expr[i] >= '0' && expr[i] <= '9')
+        {
+            int num = 0;
+            while(i < len && expr[i] >= '0' && expr[i] <= '9') {
+                num = num * 10 + (expr[i] - '0');
+                i++;
+            }
+            i--;
+            push_num(num);
+        }
+        if (c == '+' || c == '-' || c == '*' || c == '/')
+        {
+            
+            while (ops_top >= 0 && priority(ops[ops_top]) >= priority(c))
+            {
+                apply_op(pop_op());
+            }
+            push_op(c);
+        }
+    }
+
+    while (ops_top >= 0)
+    {
+        apply_op(pop_op());
+    }
+
+    return pop_num();
+
 }
